@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ context.title }}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 10px;
+            {#display: flex;#}
+            justify-content: center;
+            align-items: center;
+            {#height: 100vh;#}
+            background-color: #f0f0f0;
+        }
+
+        table {
+            width: 90%;
+            max-width: 90%;
+            background-color: #fff;
+            border-collapse: collapse;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #f4f4f4;
+        }
+
+        button, input[type="file"] {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0;
+            box-sizing: border-box;
+        }
+
+        {#@media (max-width: 600px) {#}
+        {#    th, td {#}
+        {#        display: block;#}
+        {#        width: 100%;#}
+        {#    }#}
+        {##}
+        {#    tr {#}
+        {#        margin-bottom: 10px;#}
+        {#        display: block;#}
+        {#    }#}
+        {#\}#}
+    </style>
+</head>
+<body>
+<table>
+    <tr>
+        <td>
+            <img src="{{ url_for('static', filename='gis-fields.jpg')}}" style="width: 60px; height: 60px;">
+        </td>
+        <td>
+            <h2>GIS Field Compare</h2>
+        </td>
+    </tr>
+
+</table>
+<hr>
+<table>
+    <thead>
+    <tr>
+        <td>&nbsp;</td>
+        <td>Actions</td>
+        <td>Status</td>
+    </tr>
+    </thead>
+    <tbody>
+{#    <tr>#}
+{#        <td>Delete old data</td>#}
+{#        <td>#}
+{#            <button id="del_btn" onclick="clearData()">Clear</button>#}
+{#        </td>#}
+{#        <td id="del_btn_status">&nbsp;</td>#}
+{#    </tr>#}
+    <tr>
+        <td>Select input file</td>
+        <td><input type="file" id="file_input" accept=".xlsx" onchange="file_selected()"></td>
+        <td id="file_input_status">&nbsp;</td>
+    </tr>
+    <tr>
+        <td>Upload</td>
+        <td>
+            <button id="upload_btn" onclick="uploadFile()">Upload</button>
+        </td>
+        <td id="upload_btn_status">&nbsp;</td>
+    </tr>
+    <tr>
+        <td>Process uploaded data</td>
+        <td>
+            <button id="process_btn" onclick="processFile()">Process</button>
+        </td>
+        <td id="process_btn_status">&nbsp;</td>
+    </tr>
+    <tr>
+        <td>View results - part1</td>
+        <td>
+            <button id="view_btn" onclick="view1()">View</button>
+        </td>
+        <td id="view_btn_status">&nbsp;</td>
+    </tr>
+{#    <tr>#}
+{#        <td>View results - part2</td>#}
+{#        <td>#}
+{#            <button id="view_btn2" onclick="view2()">View</button>#}
+{#        </td>#}
+{#        <td id="view_btn2_status">&nbsp;</td>#}
+{#    </tr>#}
+    </tbody>
+</table>
+</body>
+<script>
+    {#function clearData() {#}
+    {#    fetch('/api/clear-old-data', {#}
+    {#        method: 'POST',#}
+    {#        headers: {#}
+    {#            'Content-Type': 'application/json'#}
+    {#        }#}
+    {#    }).then(response => {#}
+    {#        let id = document.getElementById('del_btn');#}
+    {#        let idstatus = document.getElementById('del_btn_status');#}
+    {#        if (response.ok) {#}
+    {#            id.innerText = 'Clear Completed.';#}
+    {#            idstatus.innerText = 'Success';#}
+    {#        } else {#}
+    {#            id.innerText = 'Clear Failed.';#}
+    {#            idstatus.innerText = 'Failed';#}
+    {#        }#}
+    {#    });#}
+    {#\}#}
+
+    function file_selected() {
+        const fileInput = document.getElementById('file_input');
+        const file = fileInput.files[0];
+        if (!file) {
+            document.getElementById('file_input_status').innerText = 'No file selected';
+        } else {
+            document.getElementById('file_input_status').innerText = file.name;
+        }
+    }
+
+    function uploadFile() {
+        const fileInput = document.getElementById('file_input');
+        const btnObj = document.getElementById('upload_btn');
+        const file = fileInput.files[0];
+        if (!file) {
+            document.getElementById('upload_btn_status').innerText = 'No file selected';
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('file', file);
+
+        fetch('/api/upload', {
+            method: 'POST',
+            body: formData
+        }).then(response => {
+            let status = document.getElementById('upload_btn_status');
+            if (response.ok) {
+                status.innerText = 'Upload Successful';
+                btnObj.innerText = 'Upload Completed';
+            } else {
+                status.innerText = 'Upload Failed';
+                btnObj.innerText = 'Upload Failed';
+            }
+        }).catch(error => {
+            document.getElementById('upload_btn_status').innerText = 'Upload Error';
+        });
+    }
+
+    function processFile() {
+        let id = document.getElementById('process_btn');
+        let idstatus = document.getElementById('process_btn_status');
+
+        id.innerText = '';
+        idstatus.innerText = 'Processing....';
+
+        fetch('/api/process-data', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        }).then(response => {
+            if (response.ok) {
+                id.innerText = 'Process Completed.';
+                idstatus.innerText = 'Success';
+            } else {
+                id.innerText = 'Process Failed.';
+                idstatus.innerText = 'Failed';
+            }
+        });
+    }
+
+    function view1() {
+        document.location = '/view1';
+    }
+
+    function view2() {
+        document.location = '/view2';
+    }
+
+</script>
+
+</html>

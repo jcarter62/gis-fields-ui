@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ context.title }}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            {#margin: 20px;#}
+            padding: 10px;
+            {#display: flex;#}
+            justify-content: center;
+            align-items: center;
+            {#height: 100vh;#}
+            background-color: #f0f0f0;
+        }
+
+        table {
+            width: 100%;
+            max-width: 90%;
+            background-color: #fff;
+            border-collapse: collapse;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            {#background-color: #f4f4f4;#}
+            background-color: #fff;
+        }
+
+        button, input[type="file"] {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0;
+            box-sizing: border-box;
+        }
+    </style>
+</head>
+<body>
+<table>
+    <tr>
+        <td>
+            <a href="/">
+                <img src="{{ url_for('static', filename='home_24dp_000000.svg')}}" alt="Download" style="width: 50px; height: 50px;">
+            </a>
+        </td>
+        <td>
+            <h2>GIS Field Compare - Results</h2>
+        </td>
+        <td>
+            <a href="/view1-download" target="_blank">
+                <img src="{{ url_for('static', filename='cloud_download_24dp_000000.svg')}}" alt="Download" style="width: 50px; height: 50px;">
+            </a>
+        </td>
+    </tr>
+</table>
+<hr>
+<table>
+    <thead>
+    <tr>
+            <td>WMIS field_id</td>
+            <td>Begin</td>
+            <td>Acres</td>
+            <td>Legal Desc</td>
+            <td>GIS field_id</td>
+            <td>Prior WMIS field</td>
+            <td>Prior Legal Desc</td>
+    </tr>
+    </thead>
+    <tbody>
+    </tr>
+
+    {% for row in context.content %}
+        <tr>
+            <td>{{ row['wmis_field_id'] }}</td>
+            <td>{{ row['begin_date'] }}</td>
+            <td>{{ row['acres'] }}</td>
+            <td>{{ row['legal_desc'] }}</td>
+            <td>{{ row['gis_field_id'] }}</td>
+            <td>{{ row['prior_wmis_field'] }}</td>
+            <td>{{ row['prior_legal_desc'] }}</td>
+        </tr>
+
+    {% endfor %}
+    </tbody>
+</table>
+</body>
+<script>
+    function download() {
+
+        fetch('/view1-download', {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'file/xlsx'
+            }
+        });
+        {#.then(response => {#}
+        {#    if (response.ok) {#}
+        {#        alert('File downloaded');#}
+        {#    } else {#}
+        {#        alert('Error downloading file');#}
+        {#    }#}
+        {#)\};#}
+    }
+
+</script>
+
+</html>
