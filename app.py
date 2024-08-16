@@ -1,3 +1,4 @@
+import logging
 import tempfile
 from flask import Flask, render_template, send_file, send_from_directory, request
 from dotenv import load_dotenv
@@ -9,6 +10,18 @@ load_dotenv()
 
 app = Flask(__name__)
 
+# configure logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+
+def is_cloudflare_request():
+    return 'CF-Connecting-IP' in request.headers or 'CF-Ray' in request.headers
+
+@app.before_request
+def log_request_info():
+    ip = request.remote_addr
+    if is_cloudflare_request():
+        ip = request.headers.get('CF-Connecting-IP')
+    app.logger.info(f'{ip} - {request.method} - {request.url}')
 
 @app.route('/')
 def hello_world():  # put application's code here
