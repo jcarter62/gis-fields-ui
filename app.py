@@ -171,6 +171,14 @@ def upload_file():
     else:
         msg = "File upload failed"
 
+    url = f'{apiurl}/data/import-data'
+    response = requests.get(url)
+    code = response.status_code
+    if code == 200:
+        msg = "Data imported successfully"
+    else:
+        msg = "Data import failed"
+
     return {"message": msg}, code
 
 
